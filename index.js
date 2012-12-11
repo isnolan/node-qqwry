@@ -14,17 +14,23 @@
  * 基于cz88.net的纯真数据库、高德坐标系
  +------------------------------------------------------------------------------
  */
-var fs = require('fs'),
-	iconv = require('iconv-lite'),//编码转换
-	qqwry = 'data/qqwry.dat'; //数据文件
+var fs = require('fs');
+var iconv = require('iconv-lite');
 
-var geodat = null, 
-	indexFirst = 0, 
-	indexLast = 0,
-	ipRegexp = /^(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])$/;
+var geodat = null, indexFirst = 0, indexLast = 0;
+var ipRegexp = /^(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])$/;
 
-
-function ipToInt32(ip){
+var _loadDat = function(file){
+	try{
+		geodat = fs.readFileSync(file);
+	}catch(err){return false }
+	if(geodat){
+		indexFirst = geodat.readUInt32LE(0);
+		indexLast = geodat.readUInt32LE(4);
+		return true;
+	}else return false;
+}
+var _ipToInt32 = function(ip){
 	var result = ipRegexp.exec(ip);
 	if(result){
 		return parseInt(result[1])*16777216
@@ -34,12 +40,10 @@ function ipToInt32(ip){
 	}
 	return false;
 }
-
-function searchIndex(intip){
-	var index_top = indexLast, 
-		index_bottom = 0,
-		record,
-		index_current = parseInt((index_top - index_bottom)/7/2)*7+index_bottom;	
+var _searchIndex = function(intip){
+	var index_current, index_top = indexLast, index_bottom = indexFirst;
+	var record;
+	index_current = parseInt((index_top - index_bottom)/7/2)*7+index_bottom;	
 	do{
 		record = geodat.readUInt32LE(index_current);
 		if(record > intip){
@@ -50,11 +54,9 @@ function searchIndex(intip){
 			index_current = parseInt((index_top-index_bottom)/14)*7+index_bottom;  
 		}
 	}while(index_bottom<index_current);	
-	
 	return geodat.readUInt32LE(index_current+4)%16777216;
 }
-
-function pushString(array, addr){
+var _pushString = function(array, addr){
 	if(addr==0){
 		array.push('未知');
 		return 0;
@@ -65,54 +67,39 @@ function pushString(array, addr){
 		stringEnd++;
 	}
 	array.push(iconv.decode(geodat.slice(addr, stringEnd), 'GBK').replace('CZ88.NET', ''));
-	
 	return stringEnd;
 }
-
-function readRecord(addr){
-	var redirectMode = geodat.readUInt8(addr+=4), 
-		redirectAddr, 
-		tmpAddr, 
-		geo = [];
+var _readRecord = function(addr){
+	var redirectMode = geodat.readUInt8(addr+=4), redirectAddr, tmpAddr, geo = [];
 	if(redirectMode == 1){
 		redirectAddr = geodat.readUInt32LE(addr+1)%16777216;
 		if(geodat.readUInt8(redirectAddr) == 2){
-			pushString(geo, geodat.readUInt32LE(redirectAddr+1)%16777216);
+			_pushString(geo, geodat.readUInt32LE(redirectAddr+1)%16777216);
 			tmpAddr = redirectAddr + 4;
 		}else{
-			tmpAddr = pushString(geo, redirectAddr)+1;
+			tmpAddr = _pushString(geo, redirectAddr)+1;
 		}
 	}else if(redirectMode == 2){
-		pushString(geo, geodat.readUInt32LE(addr+1)%16777216);
+		_pushString(geo, geodat.readUInt32LE(addr+1)%16777216);
 		tmpAddr = addr+4;
 	}else{
-		tmpAddr = pushString(geo, addr)+1;
+		tmpAddr = _pushString(geo, addr)+1;
 	}
 	redirectMode = geodat.readUInt8(tmpAddr);
 	if(redirectMode == 2 || redirectMode == 1){
-		pushString(geo, geodat.readUInt32LE(tmpAddr+1)%16777216);
+		_pushString(geo, geodat.readUInt32LE(tmpAddr+1)%16777216);
 	}else{
-		pushString(geo, tmpAddr);
+		_pushString(geo, tmpAddr);
 	}
 	return geo;
 }
 
-//加载IP数据文件
-try{
-	geodat = fs.readFileSync(qqwry);
-	if(geodat){
-		indexFirst = geodat.readUInt32LE(0);
-		indexLast = geodat.readUInt32LE(4);
-	}
-}catch(err){
-	console.log('qqwry load error: '+err);
-}
-
 //对外提供接口，查询IP
 exports.query = function(ip){
-	var intip = ipToInt32(ip);
-	if(intip){
-		return readRecord(searchIndex(intip));
+	(!!indexFirst) || _loadDat('./data/qqwry.dat');
+	if(indexFirst){
+		var intip = _ipToInt32(ip);
+		if(intip) return _readRecord(_searchIndex(intip));
+		return ['错误的IP地址',''];
 	}
-	return ['错误的IP地址',''];
 }

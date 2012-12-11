@@ -1,4 +1,4 @@
-var lbs = require('./old.js');
+var lbs = require('./index.js');
 
 var t1 = new Date();
 
