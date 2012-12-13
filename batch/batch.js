@@ -63,8 +63,8 @@ function batch(keywords){
 		if(data.status!='E0'){
 			errors.push(keywords);
 		}else{
-			var poi = data.list[0];
-			relations[keywords] = (poi.city || poi.province);
+			var geo = data.address.split(',');
+			relations[keywords] = geo;
 			j++;
 		}
 		if(idx<address.length){
