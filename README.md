@@ -11,26 +11,26 @@ node-qqwry
 
 ## Installation
 通过npm 进行安装
-```js
+<pre>
   npm install node-qqwry
-
+</pre>
 或通过github 进行安装
-```js
+<pre>
   git clone https://github.com/yhostc/node-qqwry.git
-
+</pre>
 ## Examples 
 
 通过IP获取地址
-
-    var lbs = require('./index.js');
-    lbs.getAddress('106.155.177.79');
-    lbs.getArea('106.155.177.79');
-    lbs.getBounds('106.155.177.79');
-
+<pre>
+var lbs = require('./index.js');
+lbs.getAddress('106.155.177.79');
+lbs.getArea('106.155.177.79');
+lbs.getBounds('106.155.177.79');
+</pre>
 ## Tests
-  
-    node test.js
-
+<pre> 
+node test.js
+</pre>
 ## 版权
 
 BSD 谁爱用谁用    [ yhostc ]( http://yhostc.com )
