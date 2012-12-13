@@ -22,7 +22,7 @@ node-qqwry
 
 通过IP获取地址
 <pre>
-var lbs = require('./index.js');
+var lbs = require('node-qqwry');
 lbs.getAddress('106.155.177.79');
 lbs.getArea('106.155.177.79');
 lbs.getBounds('106.155.177.79');
