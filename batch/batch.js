@@ -1,3 +1,5 @@
+// 此文件为批处理，将ip.txt中地址进行排重处理，并获取其所在城市，生成数据文件data/relation.json
+
 var fs = require('fs'),
     util = require('util'),
     http = require('http'),
@@ -9,9 +11,9 @@ function query(keyword){
 	events.EventEmitter.call(this); 
 	var that = this;
 	var options = {
-		host : '10.2.134.39',
+		host : 'gc.ditu.aliyun.com',
 		port : 80,
-		path : '/geocode/simple?resType=json&encode=utf-8&sid=7000&address='+keyword,
+		path : 'geocoding?a='+keyword,
 		method : 'GET'
 	};
 	var req = http.request(options, function(res) {
@@ -69,7 +71,7 @@ function batch(keywords){
 			idx++;
 			batch(address[idx]);
 		}else{
-			fs.writeFileSync('../data/relation.js', JSON.stringify(relations));
+			fs.writeFileSync('../data/relation.json', JSON.stringify(relations));
 			
 			console.log('error for:'+errors.length+', ->'+errors.join(","));
 			console.log('success for: '+j);

@@ -16,7 +16,8 @@
  */
 var fs = require('fs'),
 	iconv = require('iconv-lite'),
-	qqwry = './data/qqwry.dat';
+	relation = {}, partion = {};
+
 
 var geodat = null, 
 	indexFirst = 0, 
@@ -69,7 +70,7 @@ function pushString(array, addr){
 
 // 加载IP数据库
 try{
-	geodat = fs.readFileSync(qqwry);
+	geodat = fs.readFileSync('./data/qqwry.dat');
 	if(geodat){
 		indexFirst = geodat.readUInt32LE(0);
 		indexLast = geodat.readUInt32LE(4);
@@ -78,9 +79,14 @@ try{
 	console.error(err);
 }
 
+// 加载关联数据文件
+relation = eval('('+ fs.readFileSync('./data/relation.json', 'utf8') +')');
+// 加载行政区划数据文件
+partion = eval('('+ fs.readFileSync('./data/partion.json', 'utf8') +')');
+
 
 //对外提供接口，查询IP
-exports.query = function(ip){
+exports.getAddress = function(ip){
 	var intip = ipToInt32(ip);
 	if(intip){
 		var addr = searchIndex(intip),
@@ -107,5 +113,21 @@ exports.query = function(ip){
 		}
 		return geo;
 	}
-	return ['error ip',''];
+	return ['error',''];
+}
+
+// 对外提供接口，获取IP对应城市
+exports.getArea = function(ip){
+	var address = this.getAddress(ip);
+	if(relation[address[0]]){
+		return relation[address[0]];
+	}
+	return '中国';
+}
+
+
+// 对外提供接口，获取IP对应Bounds
+exports.getBounds = function(ip){
+	var area = this.getArea(ip);
+	return partion[area];
 }
