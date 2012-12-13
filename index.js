@@ -70,7 +70,7 @@ function pushString(array, addr){
 
 // 加载IP数据库
 try{
-	geodat = fs.readFileSync('./data/qqwry.dat');
+	geodat = fs.readFileSync(__dirname+'/data/qqwry.dat');
 	if(geodat){
 		indexFirst = geodat.readUInt32LE(0);
 		indexLast = geodat.readUInt32LE(4);
@@ -80,9 +80,9 @@ try{
 }
 
 // 加载关联数据文件
-relation = eval('('+ fs.readFileSync('./data/relation.json', 'utf8') +')');
+relation = eval('('+ fs.readFileSync(__dirname+'/data/relation.json', 'utf8') +')');
 // 加载行政区划数据文件
-partion = eval('('+ fs.readFileSync('./data/partion.json', 'utf8') +')');
+partion = eval('('+ fs.readFileSync(__dirname+'/data/partion.json', 'utf8') +')');
 
 
 //对外提供接口，查询IP
