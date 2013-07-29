@@ -1,0 +1,26 @@
+{
+  "name": "node-qqwry",
+  "version": "0.1.0",
+  "description": "an lbs location package for ip",
+  "main": "index.js",
+  "scripts": {
+    "test": "node test.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/amaps/node-qqwry.git"
+  },
+  "keywords": [
+    "lbs",
+    "location",
+    "ip"
+  ],
+  "author": "yhostc@gmail.com",
+  "license": "BSD",
+  "bugs": {
+    "url": "https://github.com/amaps/node-qqwry/issues"
+  },
+  "dependencies": {
+    "iconv-lite": "~0.2.11"
+  }
+}
