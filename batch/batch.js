@@ -13,7 +13,7 @@ function query(keyword){
 	var options = {
 		host : 'gc.ditu.aliyun.com',
 		port : 80,
-		path : 'geocoding?a='+keyword,
+		path : '/geocoding?a='+keyword,
 		method : 'GET'
 	};
 	var req = http.request(options, function(res) {
@@ -26,12 +26,12 @@ function query(keyword){
 			buf = newBuf;
 		});
 		res.on('end', function(){
-			that.emit('complete', JSON.parse(buf.toString()));
 			//console.log(buf.toString());
+			that.emit('complete', JSON.parse(buf.toString()));
 		});
 	});
 	req.on('error', function(e) {
-	  console.log('problem with request: ' + e.message);
+	  console.log('problem with request: ', e);
 	});
 	req.end();
 }
@@ -60,11 +60,12 @@ var relations = {}, errors = [], j=0;;
 function batch(keywords){
 	var s = new query(keywords);
 	s.on('complete',function(data){
-		if(data.status!='E0'){
+		
+		if(data.address==''){
 			errors.push(keywords);
 		}else{
 			var geo = data.address.split(',');
-			relations[keywords] = geo;
+			relations[keywords] = {area: geo, bounds:[]};
 			j++;
 		}
 		if(idx<address.length){
