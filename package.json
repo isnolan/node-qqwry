@@ -21,6 +21,7 @@
     "url": "https://github.com/amaps/node-qqwry/issues"
   },
   "dependencies": {
-    "iconv-lite": "~0.2.11"
+    "iconv-lite": "~0.2.11",
+    "lib-qqwry": "0.0.2"
   }
 }

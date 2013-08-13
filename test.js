@@ -24,7 +24,7 @@ var ips = [
 var t1 = new Date();
 
 for(var i=0; i<ips.length; i++){
-	console.log(ips[i]+' -> "'+lbs.getAddress(ips[i])+'"');
+	console.log(ips[i], lbs.getAddress(ips[i]), lbs.getArea(ips[i]), lbs.getBounds(ips[i]));
 }
 
 console.log('time:'+(new Date()-t1));
